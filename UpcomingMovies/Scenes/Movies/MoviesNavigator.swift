@@ -10,7 +10,7 @@ import UIKit
 import Domain
 
 protocol MoviesNavigator {
-    func toDetails()
+    func toDetails(_ movie: Movie)
     func toMovies()
 }
 
@@ -19,7 +19,6 @@ class DefaultMoviesNavigator: MoviesNavigator {
     private let storyBoard: UIStoryboard
     private let navigationController: UINavigationController
     private let services: UseCaseProvider
-    
     
     init(services: UseCaseProvider,
          navigationController: UINavigationController,
@@ -35,7 +34,7 @@ class DefaultMoviesNavigator: MoviesNavigator {
         navigationController.pushViewController(vc, animated: true)
     }
     
-    func toDetails() {
+    func toDetails(_ movie: Movie) {
         //TODO go to details
     }
 }

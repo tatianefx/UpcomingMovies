@@ -10,29 +10,24 @@ import Foundation
 
 final class UrlsHelper {
     
-    private init() { }
-    
-    private var dictionary: [String: String] {
-        let path = Bundle.main.path(forResource: "Urls", ofType: "plist")
-        return NSDictionary(contentsOfFile: path ?? "") as? [String: String] ?? [:]
-    }
-    
     static let shared = UrlsHelper()
     
+    private init() { }
+    
     var apiKey: String {
-        return dictionary["apiKey"] ?? ""
+        return "1f54bd990f1cdfb230adb312546d765d"
     }
     
     var baseUrl: String {
-        return dictionary["baseUrl"] ?? ""
+        return "https://api.themoviedb.org/3/"
     }
     
     var moviesUrl: String {
-        return dictionary["moviesUrl"] ?? ""
+        return "discover/movie"
     }
     
     var genresUrl: String {
-        return dictionary["genresUrl"] ?? ""
+        return "genre/movie/list"
     }
     
 }

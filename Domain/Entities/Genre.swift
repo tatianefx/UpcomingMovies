@@ -10,11 +10,22 @@ import Foundation
 
 public struct Genre: Decodable {
     
-    let id: Int
-    let name: String
+    public let id: Int
+    public let name: String
     
-    enum GenreCodingKeys: String, CodingKey {
+    public init(id: Int, name: String) {
+        self.id = id
+        self.name = name
+    }
+    
+    public enum CodingKeys: String, CodingKey {
         case id
         case name
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id         = try values.decode(Int.self, forKey: .id)
+        name       = try values.decode(String.self, forKey: .name)
     }
 }

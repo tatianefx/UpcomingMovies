@@ -10,15 +10,33 @@ import Foundation
 
 public struct Movies: Decodable {
     
-    let page: Int
-    let totalResults: Int
-    let total_pages: Int
-    let results: [Movie]
+    public let page: Int
+    public let totalResults: Int
+    public let totalPages: Int
+    public let results: [Movie]
     
-    enum MoviesCodingKeys: String, CodingKey {
+    public init(page: Int,
+                totalResults: Int,
+                totalPages: Int,
+                results: [Movie]) {
+        self.page = page
+        self.totalResults = totalResults
+        self.totalPages = totalPages
+        self.results = results
+    }
+    
+    private enum CodingKeys: String, CodingKey {
         case page
         case totalResults = "total_results"
         case totalPages = "total_pages"
         case results
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values   = try decoder.container(keyedBy: CodingKeys.self)
+        page         = try values.decode(Int.self, forKey: .page)
+        totalResults = try values.decode(Int.self, forKey: .totalResults)
+        totalPages   = try values.decode(Int.self, forKey: .totalPages)
+        results      = try values.decode([Movie].self, forKey: .results)
     }
 }

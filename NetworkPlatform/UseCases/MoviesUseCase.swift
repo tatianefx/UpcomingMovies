@@ -23,6 +23,7 @@ final class MoviesUseCase: Domain.MoviesUseCase {
     func movies(page: Int?, title: String?) -> Observable<Movies> {
         return provider.rx.request(TheMovieDatabase.movies(page: page, title: title))
             .map(Movies.self)
+            .debug()
             .asObservable()
     }
     
@@ -30,6 +31,7 @@ final class MoviesUseCase: Domain.MoviesUseCase {
         return provider.rx.request(TheMovieDatabase.genres())
             .filterSuccessfulStatusCodes()
             .map([Genre].self)
+            .debug()
             .asObservable()
     }
 }

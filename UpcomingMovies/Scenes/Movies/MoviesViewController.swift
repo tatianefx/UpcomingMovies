@@ -8,27 +8,69 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
+import Domain
 
 class MoviesViewController: UIViewController {
+    
+    @IBOutlet weak var tableView: UITableView!
     
     private let disposeBag = DisposeBag()
     var viewModel: MoviesViewModel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        configureTableView()
+        setupTableViewBinding()
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    private func configureTableView() {
+        tableView.refreshControl = UIRefreshControl()
+        tableView.estimatedRowHeight = 64
+        tableView.rowHeight = UITableView.automaticDimension
     }
-    */
+    
+    private func setupTableViewBinding() {
+        assert(viewModel != nil)
+        let viewWillAppear = rx.sentMessage(#selector(UIViewController.viewWillAppear(_:)))
+            .mapToVoid()
+            .asDriverOnErrorJustComplete()
+        let pull = tableView.refreshControl!.rx
+            .controlEvent(.valueChanged)
+            .asDriver()
+        
+        let input = MoviesViewModel.Input(trigger:  Driver.merge(viewWillAppear, pull),
+                                          selection: tableView.rx.itemSelected.asDriver())
+        
+        let output = viewModel.transform(input: input)
+        bindingMovies(output)
+        refreshControl(output)
+        selectedItem(output)
+        showErros(output)
+    }
+    
+    private func bindingMovies(_ output: MoviesViewModel.Output) {
+        output.movies
+            .drive(tableView.rx.items(cellIdentifier: MovieTableViewCell.reuseId,
+                                      cellType: MovieTableViewCell.self)) { row, viewModel, cell in
+                                        cell.bind(viewModel)
+            }.disposed(by: disposeBag)
+    }
+    
+    private func refreshControl(_ output: MoviesViewModel.Output) {
+        output.fetching
+            .drive(tableView.refreshControl!.rx.isRefreshing)
+            .disposed(by: disposeBag)
+    }
+    
+    private func selectedItem(_ output: MoviesViewModel.Output) {
+        output.selectedMovie
+            .drive()
+            .disposed(by: disposeBag)
+    }
+    
+    private func showErros(_ output: MoviesViewModel.Output) {
+        //TODO show if has error
+    }
 
 }
