@@ -55,6 +55,7 @@ target 'NetworkPlatform' do
 
   # Pods for NetworkPlatform
   rx_swift
+  pod 'Moya/RxSwift', '~> 11.0'
 
   target 'NetworkPlatformTests' do
     inherit! :search_paths
