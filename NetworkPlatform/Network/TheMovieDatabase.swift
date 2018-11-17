@@ -11,7 +11,7 @@ import Moya
 
 public enum TheMovieDatabase {
     case genres()
-    case movies(page: Int?, title: String?)
+    case movies(page: Int?, title: String?, todayDate: String?)
 }
 
 extension TheMovieDatabase: TargetType {
@@ -44,12 +44,13 @@ extension TheMovieDatabase: TargetType {
         switch self {
         case .genres():
             return ["api_key": UrlsHelper.shared.apiKey]
-        case .movies(let page, let title):
+        case .movies(let page, let title, let todayDate):
             //TODO Fix search for title
             return ["api_key": UrlsHelper.shared.apiKey,
                     "language": "en-US",
                     "page": page ?? 1,
-                    "title": title ?? ""]
+                    "title": title ?? "",
+                    "primary_release_date.gte": todayDate ?? ""]
         }
     }
     

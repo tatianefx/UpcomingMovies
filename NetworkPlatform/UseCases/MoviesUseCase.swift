@@ -20,8 +20,10 @@ final class MoviesUseCase: Domain.MoviesUseCase {
         self.provider = provider
     }
     
-    func movies(page: Int?, title: String?) -> Observable<Movies> {
-        return provider.rx.request(TheMovieDatabase.movies(page: page, title: title))
+    func movies(page: Int?, title: String?, todayDate: String?) -> Observable<Movies> {
+        return provider.rx.request(TheMovieDatabase.movies(page: page,
+                                                           title: title,
+                                                           todayDate: todayDate))
             .map(Movies.self)
             .debug()
             .asObservable()

@@ -37,7 +37,7 @@ class MoviesViewModel: ViewModelType {
     
     private func fetchMovies(_ input: MoviesViewModel.Input,_ activityIndicator: ActivityIndicator,_ errorTracker: ErrorTracker) -> Driver<[MovieItemViewModel]> {
         return input.trigger.flatMapLatest { [unowned self] _ in
-            return self.useCase.movies(page: 1, title: "")
+            return self.useCase.movies(page: 1, title: "", todayDate: Date().transformToJsonString())
                 .trackActivity(activityIndicator)
                 .trackError(errorTracker)
                 .asDriverOnErrorJustComplete()
