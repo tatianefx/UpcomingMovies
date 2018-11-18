@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 
 public protocol MoviesUseCase {
-    func movies(page: Int?, title: String?, todayDate: String?) -> Observable<Movies>
+    func movies(page: Int?) -> Observable<Movies>
+    func search(page: Int?, title: String?) -> Observable<Movies>
     func genres() -> Observable<[Genre]>
 }

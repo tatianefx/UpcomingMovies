@@ -23,11 +23,15 @@ final class UrlsHelper {
     }
     
     var moviesUrl: String {
-        return "discover/movie"
+        return "movie/upcoming"
     }
     
     var genresUrl: String {
         return "genre/movie/list"
+    }
+    
+    var searchUrl: String {
+        return "search/movie"
     }
     
 }

@@ -11,7 +11,8 @@ import Moya
 
 public enum TheMovieDatabase {
     case genres()
-    case movies(page: Int?, title: String?, todayDate: String?)
+    case movies(page: Int?)
+    case search(page: Int?, title: String?)
 }
 
 extension TheMovieDatabase: TargetType {
@@ -29,6 +30,8 @@ extension TheMovieDatabase: TargetType {
             return UrlsHelper.shared.genresUrl
         case .movies:
             return UrlsHelper.shared.moviesUrl
+        case .search:
+            return UrlsHelper.shared.searchUrl
         }
     }
 
@@ -44,13 +47,15 @@ extension TheMovieDatabase: TargetType {
         switch self {
         case .genres():
             return ["api_key": UrlsHelper.shared.apiKey]
-        case .movies(let page, let title, let todayDate):
-            //TODO Fix search for title
+        case .movies(let page):
+            return ["api_key": UrlsHelper.shared.apiKey,
+                    "language": "en-US",
+                    "page": page ?? 1]
+        case .search(let page, let title):
             return ["api_key": UrlsHelper.shared.apiKey,
                     "language": "en-US",
                     "page": page ?? 1,
-                    "title": title ?? "",
-                    "primary_release_date.gte": todayDate ?? ""]
+                    "title": title ?? ""]
         }
     }
     
@@ -60,7 +65,7 @@ extension TheMovieDatabase: TargetType {
     
     public var task: Task {
         switch self {
-        case .genres, .movies:
+        case .genres, .movies, .search:
             return .requestParameters(parameters: parameters ?? [:], encoding: parameterEncoding)
         }
     }
