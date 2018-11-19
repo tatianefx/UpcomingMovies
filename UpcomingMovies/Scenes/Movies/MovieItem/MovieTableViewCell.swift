@@ -21,7 +21,7 @@ final class MovieTableViewCell: UITableViewCell {
     
     func bind(_ viewModel: MovieItemViewModel) {
         self.titleLabel.text = viewModel.title
-        self.genreLabel.text = viewModel.genreLabel
+        self.genreLabel.text = viewModel.genres
         self.releaseDateLabel.text = viewModel.releaseDateLabel
 
         viewModel.poster

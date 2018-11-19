@@ -37,12 +37,28 @@ class MoviesViewModel: ViewModelType {
     
     private func fetchMovies(_ input: MoviesViewModel.Input,_ activityIndicator: ActivityIndicator,_ errorTracker: ErrorTracker) -> Driver<[MovieItemViewModel]> {
         return input.trigger.flatMapLatest { [unowned self] _ in
-            return self.useCase.movies(page: 1)
+            self.useCase.movies(page: 1) //TODO pagination
                 .trackActivity(activityIndicator)
                 .trackError(errorTracker)
                 .asDriverOnErrorJustComplete()
-                .map { $0.results.map { MovieItemViewModel(with: $0) } }
-        }
+            }.flatMapLatest{ [unowned self] movies in
+                return self.useCase.genres()
+                    .trackActivity(activityIndicator)
+                    .trackError(errorTracker)
+                    .asDriverOnErrorJustComplete()
+                    .map { genres  in
+                        movies.results.map { movie in
+                            self.createMovieItemViewModel(movie, genres.genres)
+                        }
+                    }
+            }
+    }
+    
+    private func createMovieItemViewModel(_ movie: Movie,_ genres: [Genre]) -> MovieItemViewModel {
+        let movieGenre = genres
+            .filter({ movie.genreIds.contains($0.id) })
+            .map({ $0.name })
+        return MovieItemViewModel(with: movie, genres: movieGenre)
     }
     
     private func hasMovieSelected(_ input: MoviesViewModel.Input,_ movies: Driver<[MovieItemViewModel]>) -> Driver<Movie> {

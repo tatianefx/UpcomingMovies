@@ -13,17 +13,17 @@ import Domain
 final class MovieItemViewModel   {
 
     let title: String
-    let genreLabel: String
+    let genres: String
     let releaseDateLabel: String
     let poster: Observable<UIImage>
     let posterUrl: Variable<String>
     let movie: Movie
 
-    init (with movie: Movie) {
+    init (with movie: Movie, genres: [String]) {
         self.movie = movie
-        self.title = movie.title
-        self.genreLabel = "" //TODO
-        self.releaseDateLabel = movie.releaseDate
+        self.genres = genres.joined(separator: " | ")
+        title = movie.title
+        releaseDateLabel = movie.releaseDate
         
         let path = movie.posterPath ?? movie.backdropPath ?? ""
         posterUrl = Variable("\(Application.shared.imageUrl)\(path)")
