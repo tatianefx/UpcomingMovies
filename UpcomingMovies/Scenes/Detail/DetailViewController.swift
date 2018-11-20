@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import RxSwift
+import Kingfisher
 
 class DetailViewController: UIViewController {
     
@@ -18,7 +18,6 @@ class DetailViewController: UIViewController {
     @IBOutlet weak var releaseDateLabel: UILabel!
     @IBOutlet weak var overviewLabel: UILabel!
     
-    private let disposeBag = DisposeBag()
     var viewModel: DetailViewModel!
     
     override func viewDidLoad() {
@@ -33,15 +32,8 @@ class DetailViewController: UIViewController {
         genreLabel.text = viewModel.genre
         releaseDateLabel.text = viewModel.movie.releaseDate
         overviewLabel.text = viewModel.movie.overview
-        
-        viewModel.poster
-            .bind(to: posterImageView.rx.image)
-            .disposed(by: disposeBag)
-        
-        viewModel.backdrop
-            .bind(to: backdropImageView.rx.image)
-            .disposed(by: disposeBag)
+        posterImageView.kf.setImage(with: URL(string: viewModel.poster))
+        backdropImageView.kf.setImage(with: URL(string: viewModel.backdrop))
     }
-    
 
 }

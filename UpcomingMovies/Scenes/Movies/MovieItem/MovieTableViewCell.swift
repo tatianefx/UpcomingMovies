@@ -7,8 +7,7 @@
 //
 
 import UIKit
-import RxSwift
-import RxCocoa
+import Kingfisher
 
 final class MovieTableViewCell: UITableViewCell {
 
@@ -17,16 +16,11 @@ final class MovieTableViewCell: UITableViewCell {
     @IBOutlet weak var releaseDateLabel: UILabel!
     @IBOutlet weak var posterImageView: UIImageView!
     
-    private let disposeBag = DisposeBag()
-    
     func bind(_ viewModel: MovieItemViewModel) {
         self.titleLabel.text = viewModel.title
         self.genreLabel.text = viewModel.genres
         self.releaseDateLabel.text = viewModel.releaseDateLabel
-
-        viewModel.poster
-            .bind(to: posterImageView.rx.image)
-            .disposed(by: disposeBag)
+        posterImageView.kf.setImage(with: URL(string: viewModel.poster))
     }
 
 }

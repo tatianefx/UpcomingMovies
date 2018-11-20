@@ -21,6 +21,7 @@ target 'UpcomingMovies' do
     # Pods for UpcomingMovies
     rx_cocoa
     rx_swift
+    pod 'Kingfisher', '~> 4.9.0'
     
     target 'UpcomingMoviesTests' do
         inherit! :search_paths
