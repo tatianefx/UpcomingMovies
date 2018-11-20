@@ -70,7 +70,21 @@ class MoviesViewController: UIViewController {
     }
     
     private func showErros(_ output: MoviesViewModel.Output) {
-        //TODO show if has error
+        output.error
+            .drive(onNext: { [weak self] error in
+                self?.showAlert("Alert", message: error.localizedDescription)
+            })
+            .disposed(by: disposeBag)
     }
 
+}
+
+extension MoviesViewController {
+    
+    fileprivate func showAlert(_ title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        present(alertController, animated: true, completion: nil)
+    }
 }
