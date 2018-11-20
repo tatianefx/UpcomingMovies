@@ -8,6 +8,7 @@
 
 import Foundation
 import RxSwift
+import RxCocoa
 import Domain
 
 final class MovieItemViewModel   {
@@ -16,8 +17,9 @@ final class MovieItemViewModel   {
     let genres: String
     let releaseDateLabel: String
     let poster: Observable<UIImage>
-    let posterUrl: Variable<String>
     let movie: Movie
+    
+    private let posterUrl: BehaviorRelay<String>
 
     init (with movie: Movie, genres: [String]) {
         self.movie = movie
@@ -26,14 +28,18 @@ final class MovieItemViewModel   {
         releaseDateLabel = movie.releaseDate
         
         let path = movie.posterPath ?? movie.backdropPath ?? ""
-        posterUrl = Variable("\(Application.shared.imageUrl)\(path)")
+        posterUrl = BehaviorRelay(value: "\(Application.shared.imageUrl)\(path)")
         
-        poster = posterUrl.asObservable().map { (url) -> UIImage in
+        poster = posterUrl.asObservable()
+            .subscribeOn(CurrentThreadScheduler.instance) // `subscribeOn(CurrentThreadScheduler.instance)` is here so you can cancel scheduling of network operation in case something is returned from memory
+            .observeOn(MainScheduler.instance)
+            .map { (url) -> UIImage in
             guard let url = URL(string: url),
                 let data = try? Data(contentsOf: url),
                 let image = UIImage(data: data) else { return UIImage() }
             return image
         }
+            .take(1)
     }
     
 }

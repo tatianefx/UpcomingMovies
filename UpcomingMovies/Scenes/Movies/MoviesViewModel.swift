@@ -61,9 +61,9 @@ class MoviesViewModel: ViewModelType {
         return MovieItemViewModel(with: movie, genres: movieGenre)
     }
     
-    private func hasMovieSelected(_ input: MoviesViewModel.Input,_ movies: Driver<[MovieItemViewModel]>) -> Driver<Movie> {
-        return input.selection.withLatestFrom(movies) { (indexPath, movies) -> Movie in
-            return movies[indexPath.row].movie
+    private func hasMovieSelected(_ input: MoviesViewModel.Input,_ movies: Driver<[MovieItemViewModel]>) -> Driver<(Movie, String)> {
+        return input.selection.withLatestFrom(movies) { (indexPath, movies) -> (Movie, String) in
+            return (movies[indexPath.row].movie, movies[indexPath.row].genres)
             }.do(onNext: navigator.toDetails)
     }
 }
@@ -78,7 +78,7 @@ extension MoviesViewModel {
     struct Output {
         let fetching: Driver<Bool>
         let movies: Driver<[MovieItemViewModel]>
-        let selectedMovie: Driver<Movie>
+        let selectedMovie: Driver<(Movie, String)>
         let error: Driver<Error>
     }
 }

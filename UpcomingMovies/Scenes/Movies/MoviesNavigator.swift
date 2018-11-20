@@ -10,7 +10,7 @@ import UIKit
 import Domain
 
 protocol MoviesNavigator {
-    func toDetails(_ movie: Movie)
+    func toDetails(_ movie: Movie,_ genre: String)
     func toMovies()
 }
 
@@ -34,7 +34,10 @@ class DefaultMoviesNavigator: MoviesNavigator {
         navigationController.pushViewController(vc, animated: true)
     }
     
-    func toDetails(_ movie: Movie) {
-        //TODO go to details
+    func toDetails(_ movie: Movie,_ genre: String) {
+        let navigator = DefaultDetailNavigator(navigationController: navigationController)
+        let vc = storyBoard.instantiateViewController(ofType: DetailViewController.self)
+        vc.viewModel = DetailViewModel(navigator: navigator, movie: movie, genre: genre)
+        navigationController.pushViewController(vc, animated: true)
     }
 }
