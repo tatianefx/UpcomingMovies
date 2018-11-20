@@ -29,10 +29,14 @@ class MoviesViewModel: ViewModelType {
         let movies = fetchMovies(input, activityIndicator, errorTracker)
         let selectedMovie = hasMovieSelected(input, movies)
         
+        let empty = movies.asDriver().map { list -> Bool in
+            return list.isEmpty
+        }
+        
         let fetching = activityIndicator.asDriver()
         let errors = errorTracker.asDriver()
         
-        return Output(fetching: fetching, movies: movies, selectedMovie: selectedMovie, error: errors)
+        return Output(fetching: fetching, movies: movies, selectedMovie: selectedMovie, error: errors, empty: empty)
     }
     
     private func fetchMovies(_ input: MoviesViewModel.Input,_ activityIndicator: ActivityIndicator,_ errorTracker: ErrorTracker) -> Driver<[MovieItemViewModel]> {
@@ -80,5 +84,6 @@ extension MoviesViewModel {
         let movies: Driver<[MovieItemViewModel]>
         let selectedMovie: Driver<(Movie, String)>
         let error: Driver<Error>
+        let empty: Driver<Bool>
     }
 }
