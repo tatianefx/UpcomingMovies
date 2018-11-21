@@ -4,7 +4,7 @@
 
 #### The iOS application uses Clean Architecture and RxSwift
 
-|![](Screenshots/ScreenShot1.png) | ![](Screenshots/ScreenShot1.png) | 
+|![](Screenshots/ScreenShot1.png=320x240) | ![](Screenshots/ScreenShot1.png=320x240) | 
 
 ### Instalation
 
