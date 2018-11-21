@@ -55,7 +55,7 @@ extension TheMovieDatabase: TargetType {
             return ["api_key": UrlsHelper.shared.apiKey,
                     "language": "en-US",
                     "page": page ?? 1,
-                    "title": title ?? ""]
+                    "query": title ?? ""]
         }
     }
     

@@ -16,6 +16,7 @@ class MoviesViewModel: ViewModelType {
     let loading = BehaviorRelay<Bool>(value: false)
     
     private let hasMorePages = BehaviorRelay<Bool>(value: true)
+    private let isSearching = BehaviorRelay<(Bool, String)>(value: (false, ""))
     private let pageNumber = BehaviorRelay<Int>(value: 0)
     
     private let movies = BehaviorRelay<[MovieItemViewModel]>(value:  [])
@@ -35,20 +36,18 @@ class MoviesViewModel: ViewModelType {
         let activityIndicator = ActivityIndicator()
         let errorTracker = ErrorTracker()
         
+        /// Search trigger
+        let search = requestSearch(input, activityIndicator, errorTracker)
+        
         /// Refresh trigger
-        let refreshRequest = requestMovies(input.refreshTrigger.asDriver(),
-                                           activityIndicator,
-                                           errorTracker)
+        let refreshRequest = refresh(input, activityIndicator, errorTracker)
         
         /// Load next page trigger
-        let nextPageRequest = requestMovies(input.loadNextPageTrigger
-            .asObservable().asDriverOnErrorJustComplete(),
-                                           activityIndicator,
-                                           errorTracker)
+        let nextPageRequest = loadMore(input, activityIndicator, errorTracker)
         
         /// Merge observables
         let request = Observable
-            .of(refreshRequest, nextPageRequest)
+            .of(search, refreshRequest, nextPageRequest)
             .merge()
             .asDriverOnErrorJustComplete()
         
@@ -59,13 +58,13 @@ class MoviesViewModel: ViewModelType {
                 }
             }.do(onNext: { [unowned self] items in
                 /// Updates tableview datasource
-                self.pageNumber.value == 1
+                self.pageNumber.value <= 1
                     ? self.movies.accept(items)
                     : self.movies.accept(self.movies.value + items)
             })
         
         /// Configures selected movie trigger
-        let selectedMovie = hasMovieSelected(input, movies.asDriver())
+        let selectedMovie = hasMovieSelected(input, self.movies.asDriver())
         
         /// Configures empty view
         let empty = movies.asDriver().map { [unowned self] list -> Bool in
@@ -73,7 +72,7 @@ class MoviesViewModel: ViewModelType {
         }
         
         /// Configures loader
-        let fetching = activityIndicator.asDriver().delay(5)
+        let fetching = activityIndicator.asDriver().delay(1)
         
         /// Configures errors
         let errors = errorTracker.asDriver()
@@ -85,13 +84,66 @@ class MoviesViewModel: ViewModelType {
                       empty: empty)
     }
     
-    /// Verifies if can request genres and/or movies
-    private func requestMovies(_ trigger: Driver<Void>, _ activityIndicator: ActivityIndicator,_ errorTracker: ErrorTracker) -> Driver<[Movie]> {
-        return trigger.flatMap { [unowned self] () -> Driver<[Movie]> in
+    /// Search trigger
+    private func requestSearch(_ input: MoviesViewModel.Input,_ activityIndicator: ActivityIndicator,_ errorTracker: ErrorTracker) -> Driver<[Movie]> {
+        return input.searchTrigger.flatMap { [unowned self] query -> Driver<[Movie]> in
             if self.loading.value || !self.hasMorePages.value {
                 return Driver.empty()
             } else {
                 self.loading.accept(true)
+                if !self.isSearching.value.0 &&
+                    self.isSearching.value.1.isEmpty {
+                    self.pageNumber.accept(0)
+                }
+                self.isSearching.accept((true, query))
+                return self.fetchSearch(activityIndicator, errorTracker)
+            }
+        }
+    }
+    
+    /// Fetches movies by search
+    private func fetchSearch(_ activityIndicator: ActivityIndicator,_ errorTracker: ErrorTracker) -> Driver<[Movie]> {
+            return self.useCase.search(page: self.pageNumber.value + 1, title: self.isSearching.value.1)
+                    .trackActivity(activityIndicator)
+                    .trackError(errorTracker)
+                    .asDriverOnErrorJustComplete()
+                    .do(onNext: { [unowned self] movies in
+                        /// Verifies if has more pages
+                        self.hasMorePages.accept(movies.page < movies.totalPages)
+                    })
+                    .map {  movies -> [Movie] in
+                        /// Search result
+                        movies.results
+                    }
+    }
+    
+    ///  if can request genres and/or movies
+    private func refresh(_ input: MoviesViewModel.Input, _ activityIndicator: ActivityIndicator,_ errorTracker: ErrorTracker) -> Driver<[Movie]> {
+        return input.refreshTrigger.flatMap { [unowned self] () -> Driver<[Movie]> in
+            self.isSearching.accept((false, ""))
+            return self.requestMovies(activityIndicator, errorTracker)
+        }
+    }
+    
+    ///  if can request genres and/or movies
+    private func loadMore(_ input: MoviesViewModel.Input, _ activityIndicator: ActivityIndicator,_ errorTracker: ErrorTracker) -> Driver<[Movie]> {
+        return input.loadNextPageTrigger
+            .asDriverOnErrorJustComplete()
+            .flatMap { [unowned self] () -> Driver<[Movie]> in
+                return self.requestMovies(activityIndicator, errorTracker)
+        }
+    }
+    
+    ///  if can request genres and/or movies
+    private func requestMovies(_ activityIndicator: ActivityIndicator,_ errorTracker: ErrorTracker) -> Driver<[Movie]> {
+        if self.loading.value || !self.hasMorePages.value {
+            return Driver.empty()
+        } else {
+            self.loading.accept(true)
+            if self.isSearching.value.0 {
+                return self.fetchSearch(activityIndicator, errorTracker)
+            } else {
+                self.isSearching.accept((false, ""))
                 if self.genres.value.count > 0 {
                     return self.fetchMovies(activityIndicator, errorTracker)
                 } else {
@@ -152,6 +204,7 @@ extension MoviesViewModel {
     
     // MARK: - Input
     struct Input {
+        let searchTrigger: Driver<String>
         let selection: Driver<IndexPath>
         let refreshTrigger: Driver<Void>
         let loadNextPageTrigger: Observable<Void>

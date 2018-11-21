@@ -16,6 +16,7 @@ class MoviesViewController: UIViewController {
     // MARK: - Outlets
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var emptyView: UIView!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     private let disposeBag = DisposeBag()
     var viewModel: MoviesViewModel!
@@ -25,6 +26,18 @@ class MoviesViewController: UIViewController {
         super.viewDidLoad()
         configureTableView()
         setupTableViewBinding()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        /// Show the Navigation Bar
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(true)
+        /// Hide the Navigation Bar
+        self.navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
     private func configureTableView() {
@@ -37,18 +50,25 @@ class MoviesViewController: UIViewController {
         assert(viewModel != nil)
         let viewWillAppear = rx.sentMessage(#selector(UIViewController.viewWillAppear(_:)))
             .mapToVoid()
+            .take(1)
             .asDriverOnErrorJustComplete()
         
         let pull = tableView.refreshControl!.rx
             .controlEvent(.valueChanged)
             .asDriver()
         
-        let input = MoviesViewModel.Input(selection: tableView.rx.itemSelected.asDriver(),
-                                          refreshTrigger: Driver.merge(viewWillAppear, pull),
+        let cancelSearch = searchBar.rx.cancelButtonClicked
+            .mapToVoid()
+            .asDriverOnErrorJustComplete()
+        
+        let input = MoviesViewModel.Input(searchTrigger: searchBar.rx.text.orEmpty.changed.asDriver().throttle(0.5),
+                                          selection: tableView.rx.itemSelected.asDriver(),
+                                          refreshTrigger: Driver.merge(viewWillAppear, pull, cancelSearch),
                                           loadNextPageTrigger: tableView.rx_reachedBottom)
         
         let output = viewModel.transform(input: input)
         
+        setupSearchBar()
         bindingMovies(output)
         refreshControl(output)
         selectedItem(output)
@@ -65,10 +85,21 @@ class MoviesViewController: UIViewController {
             }.disposed(by: disposeBag)
     }
     
+    private func setupSearchBar() {
+        tableView.rx.contentOffset
+            .subscribe { [unowned self] _ in
+                if self.searchBar.isFirstResponder {
+                    _ = self.searchBar.resignFirstResponder()
+                }
+            }
+            .disposed(by: disposeBag)
+    }
+    
     private func refreshControl(_ output: MoviesViewModel.Output) {
         output.fetching
             .do(onNext: { [unowned self] isRefreshing in
                 self.viewModel.loading.accept(isRefreshing)
+                self.tableView.reloadData()
             })
             .drive(tableView.refreshControl!.rx.isRefreshing)
             .disposed(by: disposeBag)
