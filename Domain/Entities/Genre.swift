@@ -13,6 +13,7 @@ public struct Genre: Decodable {
     public let id: Int
     public let name: String
     
+    // MARK: - Init
     public init(id: Int, name: String) {
         self.id = id
         self.name = name

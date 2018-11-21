@@ -18,6 +18,7 @@ final class Application {
     
     private let useCaseProvider: Domain.UseCaseProvider
     
+    // MARK: - Init
     private init() {
         useCaseProvider = NetworkPlatform.UseCaseProvider()
     }

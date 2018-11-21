@@ -17,6 +17,7 @@ final class MovieItemViewModel   {
     let poster: String
     let movie: Movie
 
+    // MARK: - Init
     init (with movie: Movie, genres: [String]) {
         self.movie = movie
         self.genres = genres.joined(separator: " | ")

@@ -15,6 +15,7 @@ public final class UseCaseProvider: Domain.UseCaseProvider {
 
     private let networkProvider: MoyaProvider<TheMovieDatabase>
     
+    // MARK: - Init
     public init() {
         networkProvider = MoyaProvider<TheMovieDatabase>()
     }

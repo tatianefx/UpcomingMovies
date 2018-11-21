@@ -18,6 +18,7 @@ final class DetailViewModel: ViewModelType {
     
     private let navigator: DetailNavigator
     
+    // MARK: - Init
     init(navigator: DetailNavigator, movie: Movie, genre: String) {
         self.navigator = navigator
         self.movie = movie
@@ -35,9 +36,11 @@ final class DetailViewModel: ViewModelType {
 
 extension DetailViewModel {
     
+    // MARK: - Input
     struct Input {
     }
     
+    // MARK: - Output
     struct Output {
     }
 }

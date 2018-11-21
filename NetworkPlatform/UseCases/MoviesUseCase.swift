@@ -16,6 +16,7 @@ final class MoviesUseCase: Domain.MoviesUseCase {
     private let disposeBag = DisposeBag()
     private let provider: MoyaProvider<TheMovieDatabase>
     
+    // MARK: - Init
     init(provider: MoyaProvider<TheMovieDatabase>) {
         self.provider = provider
     }

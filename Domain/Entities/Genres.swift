@@ -12,6 +12,7 @@ public struct Genres: Decodable {
     
     public let genres: [Genre]
     
+    // MARK: - Init
     public init(genres: [Genre]) {
         self.genres = genres
     }

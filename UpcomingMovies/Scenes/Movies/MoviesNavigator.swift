@@ -20,6 +20,7 @@ class DefaultMoviesNavigator: MoviesNavigator {
     private let navigationController: UINavigationController
     private let services: UseCaseProvider
     
+    // MARK: - Init
     init(services: UseCaseProvider,
          navigationController: UINavigationController,
          storyBoard: UIStoryboard) {

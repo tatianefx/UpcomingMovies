@@ -12,6 +12,7 @@ final class UrlsHelper {
     
     static let shared = UrlsHelper()
     
+    // MARK: - Init
     private init() { }
     
     var apiKey: String {

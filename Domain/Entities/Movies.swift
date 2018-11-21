@@ -15,6 +15,7 @@ public struct Movies: Decodable {
     public let totalPages: Int
     public let results: [Movie]
     
+    // MARK: - Init
     public init(page: Int,
                 totalResults: Int,
                 totalPages: Int,

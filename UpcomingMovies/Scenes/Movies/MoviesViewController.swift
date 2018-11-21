@@ -13,12 +13,14 @@ import Domain
 
 class MoviesViewController: UIViewController {
     
+    // MARK: - Outlets
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var emptyView: UIView!
     
     private let disposeBag = DisposeBag()
     var viewModel: MoviesViewModel!
 
+    // MARK: - Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTableView()
@@ -36,14 +38,17 @@ class MoviesViewController: UIViewController {
         let viewWillAppear = rx.sentMessage(#selector(UIViewController.viewWillAppear(_:)))
             .mapToVoid()
             .asDriverOnErrorJustComplete()
+        
         let pull = tableView.refreshControl!.rx
             .controlEvent(.valueChanged)
             .asDriver()
         
-        let input = MoviesViewModel.Input(trigger:  Driver.merge(viewWillAppear, pull),
-                                          selection: tableView.rx.itemSelected.asDriver())
+        let input = MoviesViewModel.Input(selection: tableView.rx.itemSelected.asDriver(),
+                                          refreshTrigger: Driver.merge(viewWillAppear, pull),
+                                          loadNextPageTrigger: tableView.rx_reachedBottom)
         
         let output = viewModel.transform(input: input)
+        
         bindingMovies(output)
         refreshControl(output)
         selectedItem(output)
@@ -51,16 +56,20 @@ class MoviesViewController: UIViewController {
         showEmptyView(output)
     }
     
+    // MARK: - Private methods
     private func bindingMovies(_ output: MoviesViewModel.Output) {
         output.movies
             .drive(tableView.rx.items(cellIdentifier: MovieTableViewCell.reuseId,
-                                      cellType: MovieTableViewCell.self)) { row, viewModel, cell in
-                                        cell.bind(viewModel)
+                                        cellType: MovieTableViewCell.self)) { row, viewModel, cell in
+                                            cell.bind(viewModel)
             }.disposed(by: disposeBag)
     }
     
     private func refreshControl(_ output: MoviesViewModel.Output) {
         output.fetching
+            .do(onNext: { [unowned self] isRefreshing in
+                self.viewModel.loading.accept(isRefreshing)
+            })
             .drive(tableView.refreshControl!.rx.isRefreshing)
             .disposed(by: disposeBag)
     }
@@ -89,6 +98,7 @@ class MoviesViewController: UIViewController {
 
 }
 
+// MARK: - Alert
 extension MoviesViewController {
     
     fileprivate func showAlert(_ title: String, message: String) {

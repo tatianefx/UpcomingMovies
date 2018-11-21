@@ -17,6 +17,7 @@ final class DefaultDetailNavigator: DetailNavigator {
     
     private let navigationController: UINavigationController
     
+    // MARK: - Init
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
     }

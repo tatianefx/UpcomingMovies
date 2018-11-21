@@ -11,6 +11,7 @@ import Kingfisher
 
 class DetailViewController: UIViewController {
     
+    // MARK: - Outlets
     @IBOutlet weak var posterImageView: UIImageView!
     @IBOutlet weak var backdropImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
@@ -20,6 +21,7 @@ class DetailViewController: UIViewController {
     
     var viewModel: DetailViewModel!
     
+    // MARK: - Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViewBinding()

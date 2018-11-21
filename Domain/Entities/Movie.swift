@@ -25,6 +25,7 @@ public struct Movie: Decodable {
     public let overview: String
     public let releaseDate: String
     
+    // MARK: - Init
     public init(voteCount: Int,
                 id: Int,
                 video: Bool,
