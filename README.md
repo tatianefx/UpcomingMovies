@@ -4,6 +4,8 @@
 
 #### The iOS application uses Clean Architecture and RxSwift
 
+|![](Screenshots/ScreenShot1.png) | ![](Screenshots/ScreenShot1.png) | 
+
 ### Instalation
 
 The dependencies in this project are provided via Cocoapods. Please install all with:
