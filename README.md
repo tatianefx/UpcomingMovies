@@ -16,7 +16,6 @@ pod install
 
 ### TODO:
 
-* add search 
 * add unit tests
 * add animações
 
